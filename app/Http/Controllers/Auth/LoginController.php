@@ -17,23 +17,23 @@ class LoginController extends Controller
     // Proses login
     public function login(Request $request)
     {
-        // Validasi input
+        // Validasi input login
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        // Ambil kredensial dari form
+        // Ambil kredensial
         $credentials = $request->only('username', 'password');
 
         // Coba login
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
             return redirect()->intended('/admin/dashboard')->with('success', 'Login berhasil!');
         }
 
-        // Jika gagal
+        // Jika gagal login
         return back()->withErrors([
             'username' => 'Username atau password salah.',
         ])->onlyInput('username');
@@ -47,12 +47,12 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login')->with('status', 'Anda telah logout.');
+        return redirect()->route('login')->with('status', 'Anda telah logout.');
     }
 
-    // Tentukan field untuk login
+    // Untuk mengatur field login yang digunakan (default: email)
     public function username()
     {
-        return 'username';
+        return 'username'; // Sesuaikan dengan kolom username di database
     }
 }

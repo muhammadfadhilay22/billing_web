@@ -1,3 +1,6 @@
+<!-- Bootstrap Icons dan JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <style>
     /* Hilangkan warna biru dari item aktif */
     .list-group-item.active {
@@ -18,10 +21,12 @@
             <i class="bi bi-speedometer me-2"></i> Dashboard
         </a>
 
+        @role('admin')
         <!-- Costumer -->
         <a href="{{ route('administrator.costumers.index') }}" class="list-group-item list-group-item-action {{ request()->is('administrator/costumers*') ? 'active' : '' }}">
             <i class="bi bi-person-vcard me-2"></i> Costumer
         </a>
+        @endrole
 
         <!-- Supplier -->
         <a href="{{ route('suppliers.index') }}" class="list-group-item list-group-item-action {{ request()->is('suppliers*') ? 'active' : '' }}">
@@ -120,7 +125,8 @@
         });
     });
 </script>
-
-<!-- Bootstrap Icons dan JS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<noscript>
+    <button type="submit" form="logout-form" class="btn btn-danger">
+        Logout (No JS)
+    </button>
+</noscript>
