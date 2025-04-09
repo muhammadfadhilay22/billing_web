@@ -8,28 +8,51 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
+    // Tampilkan form login
     public function showLoginForm()
     {
-        return view('auth.login'); // Mengarah ke resources/views/auth/login.blade.php
+        return view('auth.login');
     }
 
+    // Proses login
     public function login(Request $request)
     {
+        // Validasi input
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
+            'username' => 'required|string',
+            'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($request->only('email', 'password'))) {
-            return redirect()->route('dashboard')->with('status', 'Login berhasil!');
+        // Ambil kredensial dari form
+        $credentials = $request->only('username', 'password');
+
+        // Coba login
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
+            $request->session()->regenerate();
+
+            return redirect()->intended('/admin/dashboard')->with('success', 'Login berhasil!');
         }
 
-        return back()->withErrors(['email' => 'Email atau password salah!']);
+        // Jika gagal
+        return back()->withErrors([
+            'username' => 'Username atau password salah.',
+        ])->onlyInput('username');
     }
 
-    public function logout()
+    // Logout user
+    public function logout(Request $request)
     {
         Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect('/login')->with('status', 'Anda telah logout.');
+    }
+
+    // Tentukan field untuk login
+    public function username()
+    {
+        return 'username';
     }
 }

@@ -86,9 +86,15 @@
         </div>
 
         <!-- Logout -->
-        <a href="#" class="list-group-item list-group-item-action text-danger">
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+            @csrf
+        </form>
+
+        <a href="#" class="list-group-item list-group-item-action text-danger"
+            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
             <i class="bi bi-box-arrow-right me-2"></i> Logout
         </a>
+
     </div>
 </div>
 

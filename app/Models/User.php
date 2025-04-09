@@ -3,24 +3,30 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory;
+    use Notifiable;
 
-    protected $table = 'tb_user';
+    protected $table = 'tb_user'; // Sesuaikan dengan nama tabel kamu
 
-    protected $fillable = ['name', 'username', 'email', 'password'];
+    protected $primaryKey = 'id_user';
+    public $incrementing = false; // Karena id_user bukan auto increment
+    protected $keyType = 'string';
 
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id', 'role_id');
-    }
+    protected $fillable = [
+        'id_user',
+        'namauser',
+        'alamat',
+        'nohp',
+        'cabang',
+        'role',
+        'username',
+        'password'
+    ];
 
-    public function accessibleMenus()
-    {
-        return $this->roles->flatMap->menus->pluck('name')->unique();
-    }
+    protected $hidden = [
+        'password',
+    ];
 }

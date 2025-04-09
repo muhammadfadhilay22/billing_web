@@ -111,3 +111,4 @@ Route::get('/cek-db', function () {
 
 
 Route::get('/get-produk-by-kategori', [StokProdukController::class, 'getProdukByKategori'])->name('get.produk.by.kategori');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
