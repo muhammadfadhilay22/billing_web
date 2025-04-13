@@ -12,10 +12,9 @@ class User extends Authenticatable
 {
     use Notifiable, HasRoles, HasFactory;
 
-    protected $table = 'tb_user'; // Sesuaikan dengan nama tabel kamu
-
-    protected $primaryKey = 'id_user';
-    public $incrementing = false; // id_user bukan auto increment
+    protected $table = 'tb_user'; // Nama tabel sesuai dengan DB
+    protected $primaryKey = 'id_user'; // Primary key custom
+    public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -35,12 +34,20 @@ class User extends Authenticatable
     ];
 
     /**
-     * Automatically hash password when set
+     * Otomatis hash password saat diset
      */
     public function setPasswordAttribute($value)
     {
         if (!empty($value)) {
             $this->attributes['password'] = Hash::needsRehash($value) ? Hash::make($value) : $value;
         }
+    }
+
+    /**
+     * Override getAuthIdentifierName untuk Spatie permission compatibility
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'id_user';
     }
 }

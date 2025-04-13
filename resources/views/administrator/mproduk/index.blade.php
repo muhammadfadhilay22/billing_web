@@ -5,7 +5,7 @@
 @section('content')
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Master Produk</h2>
+        <h2>Review Produk</h2>
     </div>
 
     <!-- Form Pencarian -->
@@ -35,13 +35,33 @@
                 <td>{{ $item->kategori->nama_kategori ?? 'Tidak Ada Kategori' }}</td>
                 <td>{{ $item->nama_produk }}</td>
 
-                <!-- Tampilkan stok & harga per cabang -->
                 @foreach (['Semarang', 'Surabaya', 'Bekasi', 'Makassar'] as $cabang)
                 @php
-                $stok = $item->stok[$cabang] ?? 0;
+                // Mengakses stok terkait cabang dari model StokProduk
+                $stokData = $item->stok; // Relasi stok yang sudah didefinisikan di model Produk
+                $stok = 'N/A'; // Default jika stok tidak ada
                 $hargaData = $item->harga;
-                $harga = 'Belum Ada';
+                $harga = 'Belum Ada'; // Default jika harga tidak ada
 
+                // Cek stok dan harga berdasarkan cabang
+                if ($stokData) {
+                switch (strtolower($cabang)) {
+                case 'semarang':
+                $stok = $stokData->stsemarang ?? 0; // Ambil stok Semarang
+                break;
+                case 'surabaya':
+                $stok = $stokData->stsurabaya ?? 0; // Ambil stok Surabaya
+                break;
+                case 'bekasi':
+                $stok = $stokData->stbekasi ?? 0; // Ambil stok Bekasi
+                break;
+                case 'makassar':
+                $stok = $stokData->stmakassar ?? 0; // Ambil stok Makassar
+                break;
+                }
+                }
+
+                // Menampilkan harga untuk setiap cabang
                 if ($hargaData) {
                 switch ($cabang) {
                 case 'Semarang':
@@ -59,8 +79,10 @@
                 }
                 }
                 @endphp
+
                 <td>{{ $stok }} - {{ $harga }}</td>
                 @endforeach
+
             </tr>
             @empty
             <tr>
@@ -68,6 +90,7 @@
             </tr>
             @endforelse
         </tbody>
+
     </table>
 
     <div class="d-flex justify-content-center">

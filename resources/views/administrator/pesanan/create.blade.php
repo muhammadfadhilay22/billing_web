@@ -66,18 +66,6 @@
         </script>
 
 
-        <!-- Pilih Sales -->
-        <div class="form-group mt-3" style="width: 20%;">
-            <label for="sales">Metode Pembelian</label>
-            <select name="sales" id="sales" class="form-control" required>
-                <option value="">-- Pilih Metode --</option>
-                <option value="Ambil di Kantor">Ambil di Kantor</option>
-                <option value="Via Pengiriman">Via Pengiriman</option>
-
-            </select>
-        </div>
-
-
         <!-- Daftar Produk -->
         <h5 class="mt-5">Produk</h5>
         <div class="table-responsive">
@@ -85,8 +73,8 @@
                 <thead>
                     <tr>
                         <th>Produk</th>
-                        <th class="col-md-3">Harga</th>
                         <th class="col-md-1">Jumlah</th>
+                        <th class="col-md-3">Harga</th>
                         <th>Unit</th>
                         <th>Berat (kg)</th>
                         <th>Subtotal</th>
@@ -111,16 +99,81 @@
                             </select>
 
                         </td>
-                        <td class="harga">Rp 0</td>
                         <td>
                             <input type="number" name="jumlah[]" class="form-control jumlah text-center" value="1" min="1" required>
                         </td>
+                        <td class="harga">Rp 0</td>
                         <td class="satuan"></td>
                         <td class="berat"></td>
                         <td class="subtotal">Rp 0</td>
                         <td>
-                            <div class="sn-container"></div>
+                            <div class="sn-container">
+
+                            </div>
+                            <button type="button" class="btn btn-sm btn-info mt-1 tambah-sn">
+                                + Tambah SN
+                            </button>
                         </td>
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function() {
+                                // Handler untuk perubahan produk
+                                document.addEventListener("change", function(e) {
+                                    if (e.target.classList.contains("id_produk")) {
+                                        const select = e.target;
+                                        const selectedOption = select.options[select.selectedIndex];
+
+                                        const row = select.closest("tr");
+
+                                        // Ambil nilai data dari option
+                                        const satuan = selectedOption.getAttribute("data-satuan") || '-';
+                                        const berat = selectedOption.getAttribute("data-berat") || '-';
+                                        const harga = selectedOption.getAttribute("data-harga") || 0;
+
+                                        // Tampilkan di kolom yang sesuai
+                                        row.querySelector(".satuan").textContent = satuan;
+                                        row.querySelector(".berat").textContent = berat;
+                                        row.querySelector(".harga").textContent = `Rp ${parseInt(harga).toLocaleString()}`;
+
+                                        // Update subtotal
+                                        const jumlah = parseInt(row.querySelector(".jumlah").value || 1);
+                                        const subtotal = harga * jumlah;
+                                        row.querySelector(".subtotal").textContent = `Rp ${subtotal.toLocaleString()}`;
+                                    }
+                                });
+
+                                // Handler ketika jumlah berubah
+                                document.addEventListener("input", function(e) {
+                                    if (e.target.classList.contains("jumlah")) {
+                                        const input = e.target;
+                                        const row = input.closest("tr");
+                                        const hargaText = row.querySelector(".harga").textContent.replace(/[^\d]/g, '');
+                                        const harga = parseInt(hargaText) || 0;
+                                        const jumlah = parseInt(input.value) || 1;
+                                        const subtotal = harga * jumlah;
+                                        row.querySelector(".subtotal").textContent = `Rp ${subtotal.toLocaleString()}`;
+                                    }
+                                });
+
+                                // Handler tambah SN
+                                document.addEventListener("click", function(e) {
+                                    if (e.target.classList.contains("tambah-sn")) {
+                                        const btn = e.target;
+                                        const td = btn.closest("td");
+                                        const container = td.querySelector(".sn-container");
+
+                                        const newSN = document.createElement("div");
+                                        newSN.classList.add("sn-item", "mb-1");
+                                        newSN.innerHTML = `
+                <input type="text" name="sn[]" class="form-control" placeholder="Serial Number">
+            `;
+
+                                        container.appendChild(newSN);
+                                    }
+                                });
+                            });
+                        </script>
+
+
                         <td>
                             <button type="button" class="btn btn-danger btn-sm remove-product">Hapus</button>
                         </td>
@@ -142,8 +195,18 @@
         <!-- Tambahkan Font Awesome di <head> jika belum ada -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-        <!-- Pilih Ekspedisi -->
+        <!-- Pilih Metode -->
         <div class="form-group mt-3" style="width: 20%;">
+            <label for="sales">Metode Pembelian</label>
+            <select name="sales" id="sales" class="form-control" required onchange="togglePengiriman()">
+                <option value="">-- Pilih Metode --</option>
+                <option value="Ambil di Kantor">Ambil di Kantor</option>
+                <option value="Via Pengiriman">Via Pengiriman</option>
+            </select>
+        </div>
+
+        <!-- Pilih Ekspedisi -->
+        <div class="form-group mt-3" style="width: 20%;" id="ekspedisiContainer">
             <label for="ekspedisi">Pilih Ekspedisi</label>
             <select name="ekspedisi" id="ekspedisi" class="form-control" required>
                 <option value="">-- Pilih Ekspedisi --</option>
@@ -162,10 +225,30 @@
             <button type="button" class="btn btn-warning" onclick="cetakSuratJalan()">
                 <i class="fa fa-print"></i> Cetak Surat Jalan
             </button>
-            <button type="button" class="btn btn-secondary" onclick="cetakAlamatPengiriman()">
+            <button type="button" class="btn btn-secondary" id="cetakAlamatBtn" onclick="cetakAlamatPengiriman()">
                 <i class="fa fa-print"></i> Cetak Alamat
             </button>
         </div>
+
+        <script>
+            function togglePengiriman() {
+                const metode = document.getElementById('sales').value;
+                const ekspedisiDiv = document.getElementById('ekspedisiContainer');
+                const cetakAlamatBtn = document.getElementById('cetakAlamatBtn');
+
+                if (metode === 'Via Pengiriman') {
+                    ekspedisiDiv.style.display = 'block';
+                    cetakAlamatBtn.style.display = 'inline-block';
+                } else {
+                    ekspedisiDiv.style.display = 'none';
+                    cetakAlamatBtn.style.display = 'none';
+                }
+            }
+
+            // Jalankan saat halaman load untuk kondisi awal
+            window.onload = togglePengiriman;
+        </script>
+
 
 
         <!-- Tombol Simpan -->
@@ -182,35 +265,43 @@
         document.getElementById("add-product").addEventListener("click", function() {
             let rowCount = document.querySelectorAll("#produk-list tr").length;
 
-            let row = `<tr data-index="${rowCount}">
-                <td>
-                    <select name="id_produk[]" class="form-control id_produk" required>
-                        <option value="">-- Pilih Produk --</option>
-                        @foreach ($produk as $item)
-                            <option 
-                                value="{{ $item->id_produk }}"
-                                data-harga="{{ $item->harga->hrg_smg ?? 0 }}"
-                                data-berat="{{ $item->berat }}"
-                                data-satuan="{{ $item->satuan }}"
-                            >
-                                {{ $item->nama_produk }}
-                            </option>
-                        @endforeach
-                    </select>
-                </td>
-                <td class="harga">Rp 0</td>
-                <td><input type="number" name="jumlah[]" class="form-control jumlah text-center" value="1" min="1" required></td>
-                <td class="satuan">-</td>
-                <td class="berat">-</td>
-                <td class="subtotal">Rp 0</td>
-                <td><div class="sn-container"></div></td>
-                <td><button type="button" class="btn btn-danger btn-sm remove-product">Hapus</button></td>
-            </tr>`;
+            let row =
+                `
+            <tr data-index="${rowCount}">
+    <td>
+        <select name="id_produk[]" class="form-control id_produk" required>
+            <option value="">-- Pilih Produk --</option>
+            @foreach ($produk as $item)
+                <option 
+                    value="{{ $item->id_produk }}"
+                    data-harga="{{ $item->harga->hrg_smg ?? 0 }}"
+                    data-berat="{{ $item->berat }}"
+                    data-satuan="{{ $item->satuan }}"
+                >
+                    {{ $item->nama_produk }}
+                </option>
+            @endforeach
+        </select>
+    </td>
+    <td><input type="number" name="jumlah[]" class="form-control jumlah text-center" value="1" min="1" required></td>
+    <td class="harga">Rp 0</td>
+    <td class="satuan">-</td>
+    <td class="berat">-</td>
+    <td class="subtotal">Rp 0</td>
+    <td>
+        <div class="sn-container"></div>
+        <button type="button" class="btn btn-sm btn-info mt-1 tambah-sn">+ Tambah SN</button>
+    </td>
+    <td><button type="button" class="btn btn-danger btn-sm remove-product">Hapus</button></td>
+</tr>
+
+            `;
 
             document.getElementById("produk-list").insertAdjacentHTML("beforeend", row);
 
             let newRow = document.querySelector(`#produk-list tr[data-index="${rowCount}"]`);
             updateSN(newRow, rowCount);
+
         });
 
         // Hapus produk
@@ -260,25 +351,6 @@
             row.querySelector(".berat").textContent = berat;
         }
 
-        function updateSN(row, index) {
-            let jumlah = row.querySelector(".jumlah").value;
-            let snContainer = row.querySelector(".sn-container");
-
-            if (!snData[index]) snData[index] = [];
-
-            snContainer.innerHTML = "";
-            for (let i = 0; i < jumlah; i++) {
-                let snValue = snData[index][i] || "";
-                let inputSN = `<input type="text" name="sn_produk[${index}][]" class="form-control mb-1 sn-input" placeholder="SN ${i + 1} (Opsional)" value="${snValue}">`;
-                snContainer.insertAdjacentHTML("beforeend", inputSN);
-            }
-
-            snContainer.querySelectorAll(".sn-input").forEach((input, i) => {
-                input.addEventListener("input", function() {
-                    snData[index][i] = input.value;
-                });
-            });
-        }
 
         function updateTotal() {
             let total = 0;

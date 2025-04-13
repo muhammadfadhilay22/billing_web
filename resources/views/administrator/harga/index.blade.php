@@ -61,7 +61,7 @@
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal Update Harga -->
 <div class="modal fade" id="updateHargaModal" tabindex="-1" aria-labelledby="updateHargaLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form action="{{ route('harga.update') }}" method="POST" id="formUpdateHarga">
@@ -78,22 +78,21 @@
                     <p><strong>Kategori:</strong> <span id="modal_kategori"></span></p>
                     <p><strong>Nama Produk:</strong> <span id="modal_nama"></span></p>
 
-
                     <div class="mb-2">
                         <label for="modal_hrg_smg" class="form-label">Harga Semarang</label>
-                        <input type="text" class="form-control" name="hrg_smg" id="modal_hrg_smg" required>
+                        <input type="number" class="form-control" name="hrg_smg" id="modal_hrg_smg" required>
                     </div>
                     <div class="mb-2">
                         <label for="modal_hrg_sby" class="form-label">Harga Surabaya</label>
-                        <input type="text" class="form-control" name="hrg_sby" id="modal_hrg_sby" required>
+                        <input type="number" class="form-control" name="hrg_sby" id="modal_hrg_sby" required>
                     </div>
                     <div class="mb-2">
                         <label for="modal_hrg_mks" class="form-label">Harga Makassar</label>
-                        <input type="text" class="form-control" name="hrg_mks" id="modal_hrg_mks" required>
+                        <input type="number" class="form-control" name="hrg_mks" id="modal_hrg_mks" required>
                     </div>
                     <div class="mb-2">
                         <label for="modal_hrg_bks" class="form-label">Harga Bekasi</label>
-                        <input type="text" class="form-control" name="hrg_bks" id="modal_hrg_bks" required>
+                        <input type="number" class="form-control" name="hrg_bks" id="modal_hrg_bks" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -109,22 +108,20 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const updateHargaModal = document.getElementById('updateHargaModal');
+        const modal = document.getElementById('updateHargaModal');
 
-        if (updateHargaModal) {
-            updateHargaModal.addEventListener('show.bs.modal', function(event) {
-                const button = event.relatedTarget;
-                if (!button) return;
+        modal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            if (!button) return;
 
-                document.getElementById('modal_id_harga').value = button.getAttribute('data-id');
-                document.getElementById('modal_kategori').innerText = button.getAttribute('data-kategori');
-                document.getElementById('modal_nama').innerText = button.getAttribute('data-nama');
-                document.getElementById('modal_hrg_smg').value = button.getAttribute('data-smg');
-                document.getElementById('modal_hrg_sby').value = button.getAttribute('data-sby');
-                document.getElementById('modal_hrg_mks').value = button.getAttribute('data-mks');
-                document.getElementById('modal_hrg_bks').value = button.getAttribute('data-bks');
-            });
-        }
+            document.getElementById('modal_id_harga').value = button.getAttribute('data-id');
+            document.getElementById('modal_kategori').innerText = button.getAttribute('data-kategori');
+            document.getElementById('modal_nama').innerText = button.getAttribute('data-nama');
+            document.getElementById('modal_hrg_smg').value = button.getAttribute('data-smg');
+            document.getElementById('modal_hrg_sby').value = button.getAttribute('data-sby');
+            document.getElementById('modal_hrg_mks').value = button.getAttribute('data-mks');
+            document.getElementById('modal_hrg_bks').value = button.getAttribute('data-bks');
+        });
     });
 </script>
 @endpush

@@ -30,9 +30,9 @@ class Produk extends Model
     }
 
     // Relasi ke stok produk (satu produk punya satu stok)
-    public function stokProduk()
+    public function stok()
     {
-        return $this->hasOne(StokProduk::class, 'id_produk', 'id_produk');
+        return $this->hasOne(StokProduk::class, 'id_produk');
     }
 
     // Relasi ke harga produk

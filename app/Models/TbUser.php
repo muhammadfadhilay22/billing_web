@@ -2,36 +2,55 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Hash;
 
 class TbUser extends Authenticatable
 {
-    use HasFactory, HasRoles;  // Menggunakan HasRoles dengan benar
+    use Notifiable, HasFactory, HasRoles;
 
-    protected $table = 'tb_user';  // Nama tabel sesuai dengan yang ada di database
-    protected $primaryKey = 'id_user';  // Primary key yang sesuai
-    public $incrementing = false;  // Karena id_user bukan auto-increment
-    public $timestamps = false;  // Menonaktifkan timestamps jika tidak digunakan
+    protected $table = 'tb_user';
+    protected $primaryKey = 'id_user';
+    public $incrementing = false;
+    protected $keyType = 'string'; // UUID
+    public $timestamps = false;
+
+    // Guard default untuk Spatie Permission
+    protected $guard_name = 'web';
 
     protected $fillable = [
         'id_user',
         'namauser',
-        'username',
-        'password',
+        'alamat',
         'nohp',
         'cabang',
-        'alamat',
-        'role',
-
+        'username',
+        'password',
     ];
 
     protected $hidden = [
         'password',
+        'remember_token',
     ];
 
-    // Relasi tambahan jika Anda perlu memuat data roles
-    // Ini sudah otomatis disediakan oleh Spatie HasRoles, jadi tidak perlu menambahkannya lagi
+    /**
+     * Mutator: mengenkripsi password jika belum di-hash
+     */
+    public function setPasswordAttribute($value)
+    {
+        if (!empty($value)) {
+            $this->attributes['password'] = Hash::needsRehash($value) ? Hash::make($value) : $value;
+        }
+    }
+
+    /**
+     * Accessor: menampilkan nama role pertama user
+     */
+    public function getRoleNameAttribute()
+    {
+        return $this->roles->pluck('name')->first();
+    }
 }

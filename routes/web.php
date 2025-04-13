@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\{
     Auth\LoginController,
     Auth\ForgotPasswordController,
@@ -11,12 +12,18 @@ use App\Http\Controllers\{
     StokProdukController,
     HargaProdukController,
     MProdukController,
+    DiskonProdukController,
     PesananController,
     UserController,
     SupplierController,
     RoleController,
-    RolePermissionController
+    RolePermissionController,
+    PermissionController
 };
+
+Route::get('/', function () {
+    return view('welcome');
+});
 
 // 🔐 AUTH ROUTES
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -31,19 +38,34 @@ Route::prefix('password')->group(function () {
     Route::post('reset', [ForgotPasswordController::class, 'reset'])->name('password.update');
 });
 
-// 🏠 REDIRECT LOGIN → DASHBOARD
-Route::get('/', function () {
-    return redirect()->route('dashboard');
+// 🧪 CEK KONEKSI DATABASE & HASH TEST (Opsional, boleh dibuka publik)
+Route::get('/cek-db', function () {
+    try {
+        DB::connection()->getPdo();
+        return "✅ Koneksi database berhasil: " . DB::connection()->getDatabaseName();
+    } catch (\Exception $e) {
+        return "❌ Gagal terkoneksi ke database: " . $e->getMessage();
+    }
 });
 
-// 🛡️ PROTECTED ROUTES (hanya untuk user yang login)
+Route::get('/hash-test', function () {
+    $password = 'admin123';
+    $hashed = Hash::make($password);
+    return response()->json([
+        'original' => $password,
+        'hashed' => $hashed,
+    ]);
+});
+
+// 🛡️ PROTECT SEMUA ROUTE DENGAN MIDDLEWARE AUTH
 Route::middleware(['auth'])->group(function () {
+
     // 📊 DASHBOARD
     Route::get('/admin/dashboard', function () {
         return view('administrator.dashboard');
     })->name('dashboard');
 
-    // 📦 ADMIN AREA (prefix: administrator)
+    // 📦 ADMIN AREA
     Route::prefix('administrator')->group(function () {
         Route::resource('costumers', CostumerController::class)->names('administrator.costumers');
     });
@@ -55,17 +77,38 @@ Route::middleware(['auth'])->group(function () {
         'stok' => StokProdukController::class,
         'harga' => HargaProdukController::class,
         'mproduk' => MProdukController::class,
+        'diskon' => DiskonProdukController::class,
         'pesanan' => PesananController::class,
         'users' => UserController::class,
         'suppliers' => SupplierController::class,
         'roles' => RolePermissionController::class,
+        'permissions' => PermissionController::class,
     ]);
 
-    // 🔧 CUSTOM ROUTES
+    // CONTROLLER HARGA
+    Route::get('/harga', [HargaProdukController::class, 'index'])->name('harga.index');
+    Route::get('/harga/create', [HargaProdukController::class, 'create'])->name('harga.create');
+    Route::post('/harga', [HargaProdukController::class, 'store'])->name('harga.store');
     Route::put('/harga/update', [HargaProdukController::class, 'update'])->name('harga.update');
+    Route::delete('/harga/{id}', [HargaProdukController::class, 'destroy'])->name('harga.destroy');
+
+
+
+
+
+    // CONTROLLER KATEGORI
+    Route::get('/Kategori', [KategoriController::class, 'index'])->name('kategori.index');
+    Route::get('/Kategori/create', [KategoriController::class, 'create'])->name('kategori.create');
+    Route::post('/Kategori', [KategoriController::class, 'store'])->name('kategori.store');
+    Route::get('/Kategori/{id}/edit', [KategoriController::class, 'edit'])->name('kategori.edit');
+    Route::put('/Kategori/{id}', [KategoriController::class, 'update'])->name('kategori.update');
+    Route::delete('/Kategori/{id}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
+
+    // CONTROLLER STOK
     Route::post('/stok/tambah/{id}', [StokProdukController::class, 'tambah'])->name('stok.tambah');
     Route::post('/stok/mutasi/{id}', [StokProdukController::class, 'mutasi'])->name('stok.mutasi');
     Route::get('/get-produk-by-kategori/{id}', [StokProdukController::class, 'getProdukByKategori'])->name('get.produk.by.kategori');
+
 
     // 🧾 PESANAN CETAK
     Route::get('/pesanan/cetak-invoice/{id}', [PesananController::class, 'cetakInvoice'])->name('pesanan.cetakInvoice');
@@ -77,13 +120,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/roles/get-user-access/{id}', [RoleController::class, 'getuserAccess'])->name('roles.getuserAccess');
     Route::post('/roles/save-access', [RoleController::class, 'saveUserAccess'])->name('roles.saveUserAccess');
 
-    // 🧪 CEK KONEKSI DATABASE
-    Route::get('/cek-db', function () {
-        try {
-            DB::connection()->getPdo();
-            return "✅ Koneksi database berhasil: " . DB::connection()->getDatabaseName();
-        } catch (\Exception $e) {
-            return "❌ Gagal terkoneksi ke database: " . $e->getMessage();
-        }
-    });
+    // 🔐 USER PERMISSION
+    Route::get('/users/{id}/permissions', [UserController::class, 'permissions'])->name('users.permissions');
+    Route::post('/assign-permission/{roleId}', [PermissionController::class, 'assignPermission'])->name('assign.permission');
+    Route::get('/roles', [RolePermissionController::class, 'index'])->name('roles.index');
 });

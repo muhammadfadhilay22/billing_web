@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Menu;
+use App\Models\Role;
 use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
@@ -50,5 +51,12 @@ class RoleController extends Controller
         return response()->json([
             'message' => 'Akses berhasil diperbarui!'
         ]);
+    }
+
+    public function show($id)
+    {
+        $role = Role::findOrFail($id);
+        $allPermissions = Permission::all();
+        return view('administrator.roles.show', compact('role', 'allPermissions'));
     }
 }

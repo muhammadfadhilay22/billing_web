@@ -2,106 +2,108 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\TbUser;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    // Menampilkan daftar user
-
-
-
     public function index()
     {
-        // Memuat data pengguna dan relasi roles
         $users = TbUser::with('roles')->get();
         return view('administrator.users.index', compact('users'));
     }
 
-
-    // Menampilkan form tambah user
     public function create()
     {
-        return view('administrator.users.create');
+        $roles = Role::pluck('name', 'name'); // untuk select form
+        return view('administrator.users.create', compact('roles'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'namauser' => 'required|string|max:50',
+            'namauser' => 'required|string|max:100',
             'username' => 'required|string|max:50|unique:tb_user,username',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|confirmed',
             'nohp' => 'required|string|max:13',
-            'cabang' => 'required|string|max:20',
+            'cabang' => 'required|string',
             'alamat' => 'required|string',
-            'role' => 'required|string|in:Admin,Sales,Kepala Gudang,Packing,Logistik,User Monitoring',
+            'role' => 'required|exists:roles,name',
         ]);
 
-        try {
-            $user = TbUser::create([
-                'id_user' => 'USR' . time(),
-                'namauser' => $request->namauser,
-                'username' => $request->username,
-                'password' => Hash::make($request->password),
-                'nohp' => $request->nohp,
-                'cabang' => $request->cabang,
-                'alamat' => $request->alamat,
-                'role' => $request->role, // Pastikan role dikirim
-            ]);
+        $user = TbUser::create([
+            'id_user' => (string) Str::uuid(),
+            'namauser' => $request->namauser,
+            'username' => $request->username,
+            'password' => $request->password, // pastikan hash via mutator
+            'nohp' => $request->nohp,
+            'cabang' => $request->cabang,
+            'alamat' => $request->alamat,
+        ]);
 
+        $user->assignRole($request->role);
 
-            return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
+        return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan.');
     }
 
-
-    // Menampilkan form edit user
     public function edit($id)
     {
         $user = TbUser::findOrFail($id);
-        return view('administrator.users.edit', compact('user'));
+        $roles = Role::pluck('name', 'name');
+        $userRole = $user->roles->pluck('name')->first();
+
+        return view('administrator.users.edit', compact('user', 'roles', 'userRole'));
     }
 
-    // Update user
     public function update(Request $request, $id)
     {
+        $user = TbUser::findOrFail($id);
+
         $request->validate([
-            'namauser' => 'required|string|max:50',
+            'namauser' => 'required|string|max:100',
             'username' => 'required|string|max:50|unique:tb_user,username,' . $id . ',id_user',
+            'password' => 'nullable|confirmed|min:6',
             'nohp' => 'required|string|max:13',
-            'cabang' => 'required|string|max:20',
+            'cabang' => 'required|string',
             'alamat' => 'required|string',
-            'role' => 'required|string|max:10',
+            'role' => 'required|exists:roles,name',
         ]);
 
-        try {
-            $user = TbUser::findOrFail($id);
-            $user->update([
-                'namauser' => $request->namauser,
-                'username' => $request->username,
-                'nohp' => $request->nohp,
-                'cabang' => $request->cabang,
-                'alamat' => $request->alamat,
-                'role' => $request->role,
-            ]);
-            return redirect()->route('users.index')->with('success', 'User berhasil diperbarui');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        $data = $request->only(['namauser', 'username', 'nohp', 'cabang', 'alamat']);
+
+        if ($request->filled('password')) {
+            $data['password'] = $request->password;
         }
+
+        $user->update($data);
+
+        $user->syncRoles([$request->role]);
+
+        return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
     }
 
-    // Hapus user
     public function destroy($id)
     {
-        try {
-            TbUser::destroy($id);
-            return redirect()->route('users.index')->with('success', 'User berhasil dihapus');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
+        $user = TbUser::findOrFail($id);
+        $user->delete();
+
+        return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
+    }
+
+    public function permissions($id)
+    {
+        $user = TbUser::with(['roles', 'permissions'])->findOrFail($id);
+        return view('administrator.users.permissions', compact('user'));
+    }
+
+    public function assignRoleToUser(Request $request)
+    {
+        $user = TbUser::find($request->user_id); // atau pakai route-model-binding
+        $user->assignRole($request->role); // 'Admin', 'Sales', dsb
+
+        return redirect()->back()->with('success', 'Role berhasil ditetapkan!');
     }
 }

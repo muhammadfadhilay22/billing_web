@@ -26,7 +26,7 @@
                 <td>{{ $item->id_produk }}</td>
                 <td>{{ $item->nama_produk }}</td>
                 <td>{{ optional($item->kategori)->nama_kategori }}</td> <!-- Mencegah error jika kategori null -->
-                <td>{{ $item->berat }}</td>
+                <td>{{ $item->berat }} Kg</td>
                 <td>{{ $item->satuan }}</td>
                 <td>
                     <a href="{{ route('produk.edit', $item->id_produk) }}" class="btn btn-info btn-sm">Edit</a>

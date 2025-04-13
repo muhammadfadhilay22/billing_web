@@ -12,7 +12,7 @@ class ProdukController extends Controller
 {
     public function index()
     {
-        $produk = Produk::with('kategori')->paginate(10);
+        $produk = Produk::with('kategori', 'stok', 'harga')->paginate(10);
         return view('administrator.produk.index', compact('produk'));
     }
 
@@ -79,6 +79,26 @@ class ProdukController extends Controller
         $produk = Produk::findOrFail($id_produk);
         $kategori = Kategori::all();
         return view('administrator.produk.edit', compact('produk', 'kategori'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'id_kategori' => 'required|exists:tb_kategori,id_kategori',
+            'nama_produk' => 'required|string|max:255',
+            'satuan' => 'required|string|max:50',
+            'berat' => 'required|numeric|min:0',
+        ]);
+
+        $produk = Produk::findOrFail($id);
+        $produk->update([
+            'id_kategori' => $request->id_kategori,
+            'nama_produk' => $request->nama_produk,
+            'satuan' => $request->satuan,
+            'berat' => $request->berat,
+        ]);
+
+        return redirect()->route('produk.index')->with('success', 'Produk berhasil diperbarui!');
     }
 
     public function getProdukByKategori($kategori_id)

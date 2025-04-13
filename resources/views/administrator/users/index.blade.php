@@ -15,7 +15,7 @@
                 <th>Username</th>
                 <th>Nomor HP/WA</th>
                 <th>Cabang</th>
-                <th>Role</th>
+                <th>Role</th> {{-- Tambahkan kolom Role --}}
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -27,14 +27,15 @@
                 <td>{{ $user->username }}</td>
                 <td>{{ $user->nohp }}</td>
                 <td>{{ $user->cabang }}</td>
-                <td>{{ $user->role }}</td>
-
+                <td>
+                    {{ $user->roles->pluck('name')->join(', ') }} {{-- Tampilkan semua role jika lebih dari satu --}}
+                </td>
                 <td>
                     <a href="{{ route('users.edit', $user) }}" class="btn btn-warning btn-sm">
                         <i class="bi bi-pencil"></i> Edit
                     </a>
+                    <a href="{{ route('users.permissions', $user->id_user) }}" class="btn btn-info btn-sm">Lihat Permission</a>
 
-                    <!-- Delete Button Form -->
                     <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
                         @csrf
                         @method('DELETE')
