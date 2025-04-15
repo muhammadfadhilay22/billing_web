@@ -18,7 +18,9 @@
                 <th>Harga Surabaya</th>
                 <th>Harga Makassar</th>
                 <th>Harga Bekasi</th>
+                @role('master')
                 <th>Aksi</th>
+                @endrole
             </tr>
         </thead>
         <tbody>
@@ -31,6 +33,7 @@
                 <td>Rp {{ number_format($harga->hrg_sby, 0, ',', '.') }}</td>
                 <td>Rp {{ number_format($harga->hrg_mks, 0, ',', '.') }}</td>
                 <td>Rp {{ number_format($harga->hrg_bks, 0, ',', '.') }}</td>
+                @role('master')
                 <td>
                     <button
                         class="btn btn-info btn-sm"
@@ -47,6 +50,7 @@
                     </button>
 
                 </td>
+                @endrole
             </tr>
             @empty
             <tr>

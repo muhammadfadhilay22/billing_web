@@ -26,6 +26,7 @@
                 <th style="white-space: nowrap;">Username</th>
                 <th style="white-space: nowrap;">No. HP/WA</th>
                 <th style="white-space: nowrap;">Alamat</th>
+                <th style="white-space: nowrap;">Status Pajak</th>
                 <th style="white-space: nowrap;">Aksi</th>
             </tr>
         </thead>
@@ -43,6 +44,7 @@
                     {{ $costumer->alamat->desa ?? '-' }},
                     {{ $costumer->alamat->jalan ?? '-' }}
                 </td>
+                <td>{{ $costumer->stspajak }}</td>
                 <td>
                     <a href="{{ route('administrator.costumers.edit', ['costumer' => $costumer->id_costumer]) }}" class="btn btn-info btn-sm">Edit</a>
 

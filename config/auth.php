@@ -40,7 +40,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        // Jika menggunakan guard lain seperti 'api'
+        'api' => [
+            'driver' => 'token',
+            'provider' => 'users',
+        ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -62,7 +68,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class, // pastikan sesuai
+            'model' => App\Models\TbUser::class, // pastikan sesuai
         ],
 
         // 'users' => [

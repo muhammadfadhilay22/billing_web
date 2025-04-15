@@ -19,7 +19,9 @@
                 <th>Stok Surabaya</th>
                 <th>Stok Bekasi</th>
                 <th>Stok Makassar</th>
+                @role('master')
                 <th>Aksi</th>
+                @endrole
             </tr>
         </thead>
         <tbody>
@@ -33,10 +35,12 @@
                 <td>{{ $stok->stsurabaya }} {{ $stok->produk->satuan ?? '-' }}</td>
                 <td>{{ $stok->stbekasi }} {{ $stok->produk->satuan ?? '-' }}</td>
                 <td>{{ $stok->stmakassar }} {{ $stok->produk->satuan ?? '-' }}</td>
+                @role('master')
                 <td>
                     <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#tambahModal{{ $stok->id_stok }}">Tambah</button>
                     <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#mutasiModal{{ $stok->id_stok }}">Mutasi</button>
                 </td>
+                @endrole
             </tr>
 
             <!-- Modal Tambah -->

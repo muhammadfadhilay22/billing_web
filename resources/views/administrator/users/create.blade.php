@@ -89,6 +89,7 @@
                 <label for="role" class="form-label">Role</label>
                 <select class="form-control" id="role" name="role" required>
                     <option value="" disabled selected>Pilih Role</option>
+                    <option value="Master">Master Aplikasi</option>
                     <option value="Admin">Admin</option>
                     <option value="Sales">Sales</option>
                     <option value="Kepala Gudang">Kepala Gudang</option>

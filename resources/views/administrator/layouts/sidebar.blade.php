@@ -24,52 +24,68 @@
 <!-- Sidebar -->
 <div class="bg-light border-end" id="sidebar-wrapper" style="width: 250px; min-height: 100vh;">
     <div class="sidebar-heading text-center py-4">
-        <h5>Administrator</h5>
+        @role('master')
+        <h5>Master Aplikasi</h5>
+        @endrole
+        @role('admin')
+        <h5>Admin Aplikasi</h5>
+        @endrole
+        @role('packing')
+        <h5>Packing Aplikasi</h5>
+        @endrole
+        @role('logistik')
+        <h5>Logistik Aplikasi</h5>
+        @endrole
+
+
     </div>
 
     <div class="list-group list-group-flush" id="sidebarAccordion">
 
         <!-- Dashboard -->
-        <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action {{ request()->is('dashboard') ? 'active' : '' }}">
+        <a href="{{ route('admin.dashboard') }}" class="list-group-item list-group-item-action {{ request()->is('dashboard') ? 'active' : '' }}">
             <i class="bi bi-speedometer2 me-2"></i> Dashboard
         </a>
 
         <!-- Packing -->
-        <p class="mt-2" style="margin-left: 20px;">Menu Packing</p>
-        <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action {{ request()->is('dashboard') ? 'active' : '' }}">
-            <i class="bi bi-speedometer2 me-2"></i> Dashboard
-        </a>
-        <a href="#" class="list-group-item list-group-item-action {{ request()->is('packing/masuk') ? 'active' : '' }}">
+        @role('packing')
+        <a href="{{ route('stspesanan.index') }}" class="list-group-item list-group-item-action {{ request()->is('packing/masuk') ? 'active' : '' }}">
             <i class="bi bi-arrow-down-square me-2"></i> Packing Masuk
         </a>
         <a href="#" class="list-group-item list-group-item-action {{ request()->is('packing/selesai') ? 'active' : '' }}">
             <i class="bi bi-check-square me-2"></i> Packing Selesai
         </a>
+        @endrole
+
 
         <!-- Logistik -->
-        <p class="mt-2" style="margin-left: 20px;">Menu Logistik</p>
-        <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action {{ request()->is('dashboard') ? 'active' : '' }}">
-            <i class="bi bi-speedometer2 me-2"></i> Dashboard
-        </a>
-        <a href="#" class="list-group-item list-group-item-action {{ request()->is('logistik/masuk') ? 'active' : '' }}">
+        @role('logistik')
+        <a href="{{ route('stspesanan.index') }}" class="list-group-item list-group-item-action {{ request()->is('logistik/masuk') ? 'active' : '' }}">
             <i class="bi bi-box-arrow-in-down me-2"></i> Logistik Masuk
         </a>
         <a href="#" class="list-group-item list-group-item-action {{ request()->is('logistik/selesai') ? 'active' : '' }}">
             <i class="bi bi-box-arrow-in-up me-2"></i> Logistik Selesai
         </a>
+        @endrole
 
-        <p class="mt-2" style="margin-left: 20px;">Menu Utama</p>
         <!-- Costumer -->
+        @if(auth()->user()->hasRole('admin')) <!-- Memastikan user memiliki role 'admin' -->
         <a href="{{ route('administrator.costumers.index') }}" class="list-group-item list-group-item-action {{ request()->is('administrator/costumers*') ? 'active' : '' }}">
             <i class="bi bi-person-vcard me-2"></i> Costumer
         </a>
+        @endif
+
 
         <!-- Supplier -->
+        @role('master')
         <a href="{{ route('suppliers.index') }}" class="list-group-item list-group-item-action {{ request()->is('suppliers*') ? 'active' : '' }}">
             <i class="bi bi-truck-front me-2"></i> Supplier
         </a>
+        @endrole
+
 
         <!-- Produk -->
+        @role('admin|master')
         @php
         $produkActive = request()->is('kategori*') || request()->is('produk*') || request()->is('stok*') || request()->is('harga*') || request()->is('mproduk*') || request()->is('diskon*');
         @endphp
@@ -98,8 +114,11 @@
                 <i class="bi bi-percent me-2"></i> Diskon Produk
             </a>
         </div>
+        @endrole
+
 
         <!-- Penjualan -->
+        @role('admin')
         @php
         $penjualanActive = request()->is('pesanan*');
         @endphp
@@ -112,15 +131,17 @@
             <a href="{{ route('pesanan.index') }}" class="list-group-item list-group-item-action {{ request()->is('pesanan') ? 'active' : '' }}">
                 <i class="bi bi-receipt me-2"></i> Data Penjualan
             </a>
-            <a href="#" class="list-group-item list-group-item-action">
+            <a href="{{ route('stspesanan.index') }}" class="list-group-item list-group-item-action">
                 <i class="bi bi-clipboard-check me-2"></i> Status Penjualan
             </a>
         </div>
+        @endrole
 
         <!-- Manajemen User -->
         @php
         $userMenuActive = request()->is('users*') || request()->is('roles*') || request()->is('permissions*');
         @endphp
+        @role('master')
         <a class="list-group-item list-group-item-action toggle-menu {{ $userMenuActive ? 'active' : '' }}"
             data-bs-toggle="collapse" href="#userMenu" role="button" aria-expanded="{{ $userMenuActive ? 'true' : 'false' }}">
             <i class="bi bi-people-fill me-2"></i> Manajemen User
@@ -137,6 +158,7 @@
                 <i class="bi bi-person-badge me-2"></i> Role & Permission
             </a>
         </div>
+        @endrole
 
         <!-- Logout -->
         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>

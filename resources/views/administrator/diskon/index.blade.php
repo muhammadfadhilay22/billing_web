@@ -25,7 +25,9 @@
                 <th>Beli 10</th>
                 <th>Beli 20</th>
                 <th>Beli 50</th>
+                @role('master')
                 <th>Aksi</th>
+                @endrole
             </tr>
         </thead>
         <tbody>
@@ -59,10 +61,12 @@
                 </td>
 
                 <!-- Aksi Edit dan Hapus -->
+                @role('master')
                 <td>
                     <!-- Tombol Edit Produk -->
                     <a href="{{ route('produk.edit', $item->id_produk) }}" class="btn btn-warning btn-sm">Edit Diskon</a>
                 </td>
+                @endrole
             </tr>
             @empty
             <tr>

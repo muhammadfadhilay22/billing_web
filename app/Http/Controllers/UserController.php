@@ -34,8 +34,12 @@ class UserController extends Controller
             'role' => 'required|exists:roles,name',
         ]);
 
+        // Menentukan awalan ID berdasarkan role
+        $rolePrefix = $this->getRolePrefix($request->role);
+        $userId = $rolePrefix . $this->generateUserId($rolePrefix);
+
         $user = TbUser::create([
-            'id_user' => (string) Str::uuid(),
+            'id_user' => $userId,
             'namauser' => $request->namauser,
             'username' => $request->username,
             'password' => $request->password, // pastikan hash via mutator
@@ -80,6 +84,13 @@ class UserController extends Controller
 
         $user->update($data);
 
+        // Menyesuaikan role dan ID user jika role berubah
+        if ($user->roles->pluck('name')->first() != $request->role) {
+            $newRolePrefix = $this->getRolePrefix($request->role);
+            $user->id_user = $newRolePrefix . $this->generateUserId($newRolePrefix);
+            $user->save();
+        }
+
         $user->syncRoles([$request->role]);
 
         return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
@@ -99,11 +110,54 @@ class UserController extends Controller
         return view('administrator.users.permissions', compact('user'));
     }
 
-    public function assignRoleToUser(Request $request)
+    public function assignRoleToUser($userId, $roleName)
     {
-        $user = TbUser::find($request->user_id); // atau pakai route-model-binding
-        $user->assignRole($request->role); // 'Admin', 'Sales', dsb
+        // Cari user berdasarkan ID
+        $user = TbUser::find($userId);
 
-        return redirect()->back()->with('success', 'Role berhasil ditetapkan!');
+        if ($user) {
+            // Menetapkan role ke user
+            $user->assignRole($roleName);
+
+            return response()->json(['message' => 'Role assigned successfully.']);
+        }
+
+        return response()->json(['message' => 'User not found.'], 404);
+    }
+
+    /**
+     * Menentukan prefix berdasarkan role
+     */
+    private function getRolePrefix($role)
+    {
+        switch ($role) {
+            case 'Master':
+                return 'MAG-';
+            case 'Admin':
+                return 'AG-';
+            case 'Logistik':
+                return 'LG-';
+            case 'Packing':
+                return 'PG-';
+            default:
+                return 'GL-';
+        }
+    }
+
+    /**
+     * Menghasilkan nomor urut berdasarkan prefix
+     */
+    private function generateUserId($prefix)
+    {
+        $latestUser = TbUser::where('id_user', 'like', $prefix . '%')
+            ->orderBy('id_user', 'desc')
+            ->first();
+
+        if ($latestUser) {
+            $latestNumber = (int) substr($latestUser->id_user, -3);
+            return str_pad($latestNumber + 1, 3, '0', STR_PAD_LEFT);
+        }
+
+        return '001'; // jika tidak ada user sebelumnya
     }
 }

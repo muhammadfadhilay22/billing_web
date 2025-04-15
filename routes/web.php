@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\{
     Auth\LoginController,
     Auth\ForgotPasswordController,
+    DashboardController,
     CostumerController,
     KategoriController,
     ProdukController,
@@ -14,6 +15,7 @@ use App\Http\Controllers\{
     MProdukController,
     DiskonProdukController,
     PesananController,
+    StsPesananController,
     UserController,
     SupplierController,
     RoleController,
@@ -61,9 +63,10 @@ Route::get('/hash-test', function () {
 Route::middleware(['auth'])->group(function () {
 
     // 📊 DASHBOARD
-    Route::get('/admin/dashboard', function () {
-        return view('administrator.dashboard');
-    })->name('dashboard');
+    // Menambahkan prefix admin pada rute dashboard
+    Route::prefix('admin')->middleware('auth')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'showDashboard'])->name('admin.dashboard');
+    });
 
     // 📦 ADMIN AREA
     Route::prefix('administrator')->group(function () {
@@ -79,6 +82,7 @@ Route::middleware(['auth'])->group(function () {
         'mproduk' => MProdukController::class,
         'diskon' => DiskonProdukController::class,
         'pesanan' => PesananController::class,
+        'stspesanan' => StsPesananController::class,
         'users' => UserController::class,
         'suppliers' => SupplierController::class,
         'roles' => RolePermissionController::class,

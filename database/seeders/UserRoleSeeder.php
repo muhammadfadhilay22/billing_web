@@ -10,6 +10,19 @@ class UserRoleSeeder extends Seeder
 {
     public function run()
     {
+        // Buat role jika belum ada
+        $roles = [
+            'master',
+            'admin',
+            'kepala gudang',
+            'packing dan logistik',
+            'user monitoring'
+        ];
+
+        foreach ($roles as $roleName) {
+            Role::firstOrCreate(['name' => $roleName], ['guard_name' => 'web']);
+        }
+
         // Ambil role yang sudah dibuat
         $roleMaster = Role::where('name', 'master')->first();
         $roleAdmin = Role::where('name', 'admin')->first();

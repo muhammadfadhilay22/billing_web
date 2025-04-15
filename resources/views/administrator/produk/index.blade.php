@@ -6,7 +6,9 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Daftar Produk</h2>
+        @role('master')
         <a href="{{ route('produk.create') }}" class="btn btn-primary">+ Tambah Produk</a>
+        @endrole
     </div>
 
     <table class="table table-bordered">
@@ -17,7 +19,9 @@
                 <th>Kategori</th>
                 <th>Berat</th>
                 <th>Satuan</th>
+                @role('master')
                 <th>Aksi</th>
+                @endrole
             </tr>
         </thead>
         <tbody>
@@ -28,6 +32,7 @@
                 <td>{{ optional($item->kategori)->nama_kategori }}</td> <!-- Mencegah error jika kategori null -->
                 <td>{{ $item->berat }} Kg</td>
                 <td>{{ $item->satuan }}</td>
+                @role('master')
                 <td>
                     <a href="{{ route('produk.edit', $item->id_produk) }}" class="btn btn-info btn-sm">Edit</a>
                     <form action="{{ route('produk.destroy', $item->id_produk) }}" method="POST" style="display:inline-block;">
@@ -36,6 +41,7 @@
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
                     </form>
                 </td>
+                @endrole
             </tr>
             @empty
             <tr>

@@ -37,31 +37,29 @@
 
                 @foreach (['Semarang', 'Surabaya', 'Bekasi', 'Makassar'] as $cabang)
                 @php
-                // Mengakses stok terkait cabang dari model StokProduk
-                $stokData = $item->stok; // Relasi stok yang sudah didefinisikan di model Produk
-                $stok = 'N/A'; // Default jika stok tidak ada
+                $stokData = $item->stok;
+                $stok = 'N/A';
+                $satuan = $item->satuan ?? '-';
                 $hargaData = $item->harga;
-                $harga = 'Belum Ada'; // Default jika harga tidak ada
+                $harga = 'Belum Ada';
 
-                // Cek stok dan harga berdasarkan cabang
                 if ($stokData) {
                 switch (strtolower($cabang)) {
                 case 'semarang':
-                $stok = $stokData->stsemarang ?? 0; // Ambil stok Semarang
+                $stok = $stokData->stsemarang ?? 0;
                 break;
                 case 'surabaya':
-                $stok = $stokData->stsurabaya ?? 0; // Ambil stok Surabaya
+                $stok = $stokData->stsurabaya ?? 0;
                 break;
                 case 'bekasi':
-                $stok = $stokData->stbekasi ?? 0; // Ambil stok Bekasi
+                $stok = $stokData->stbekasi ?? 0;
                 break;
                 case 'makassar':
-                $stok = $stokData->stmakassar ?? 0; // Ambil stok Makassar
+                $stok = $stokData->stmakassar ?? 0;
                 break;
                 }
                 }
 
-                // Menampilkan harga untuk setiap cabang
                 if ($hargaData) {
                 switch ($cabang) {
                 case 'Semarang':
@@ -80,7 +78,7 @@
                 }
                 @endphp
 
-                <td>{{ $stok }} - {{ $harga }}</td>
+                <td>{{ $stok }} {{ $satuan }} - {{ $harga }}</td>
                 @endforeach
 
             </tr>
@@ -90,6 +88,7 @@
             </tr>
             @endforelse
         </tbody>
+
 
     </table>
 
